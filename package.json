@@ -1,0 +1,29 @@
+{
+  "name": "modecheck",
+  "version": "1.0.0",
+  "description": "Utility package for checking runtime mode.",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha -r ts-node/register src/**/*.ts"
+  },
+  "keywords": [
+    "utility",
+    "environment"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hwkd/modecheck"
+  },
+  "author": "Justin Kim <justinkimkorea@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^11.9.5",
+    "chai": "^4.2.0",
+    "mocha": "^6.0.2",
+    "ts-node": "^8.0.2",
+    "typescript": "^3.3.3333"
+  }
+}
