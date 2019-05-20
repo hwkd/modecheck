@@ -1,6 +1,6 @@
 {
   "name": "modecheck",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Utility package for checking runtime mode.",
   "main": "build/index.js",
   "scripts": {
