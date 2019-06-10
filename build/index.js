@@ -1,43 +1,65 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var NodeEnv;
+(function (NodeEnv) {
+    NodeEnv[NodeEnv["PRODUCTION"] = 0] = "PRODUCTION";
+    NodeEnv[NodeEnv["DEVELOPMENT"] = 1] = "DEVELOPMENT";
+    NodeEnv[NodeEnv["TEST"] = 2] = "TEST";
+})(NodeEnv = exports.NodeEnv || (exports.NodeEnv = {}));
 /**
  * Tests environment variable against the rexexp (case insensitive).
- * @param value String value to construct regexp to compare against the environment variable.
- * @param envNameOrValue Name of environment variable or local value.
+ * @param values String value to construct regexp to compare against the environment variable.
+ * @param options Config options.
+ * @param options.env Uses this if `target` doesn't exist.
+ * @param options.target Value to compare. Uses this if exists.
  */
-function modeTest(value, envNameOrValue, { useLocal } = {}) {
-    const regexp = new RegExp(value, "i");
-    const compareTo = useLocal ? envNameOrValue : process.env[envNameOrValue];
-    return regexp.test(compareTo);
+function modeTest(value, { env, target } = {}) {
+    if (Array.isArray(value)) {
+        return value.reduce((result, value) => {
+            return modeTest(value, { env, target }) || result;
+        }, false);
+    }
+    else {
+        const regexp = new RegExp(value, "i");
+        const compareTo = target || process.env[env];
+        return regexp.test(compareTo);
+    }
 }
 exports.modeTest = modeTest;
-function isProduction(localValue) {
-    return modeTest("production", localValue || "NODE_ENV", {
-        useLocal: localValue ? true : false
+function isProduction(target) {
+    return modeTest(["prod", "production"], {
+        env: "NODE_ENV",
+        target
     });
 }
 exports.isProduction = isProduction;
-function isDevelopment(localValue) {
-    return modeTest("development", localValue || "NODE_ENV", {
-        useLocal: localValue ? true : false
+function isDevelopment(target) {
+    return modeTest(["dev", "development"], {
+        env: "NODE_ENV",
+        target
     });
 }
 exports.isDevelopment = isDevelopment;
-function isTest(localValue) {
-    return modeTest("test", localValue || "NODE_ENV", {
-        useLocal: localValue ? true : false
+function isTest(target) {
+    return modeTest("test", {
+        env: "NODE_ENV",
+        target
     });
 }
 exports.isTest = isTest;
-function isDev(localValue) {
-    return modeTest("dev", localValue || "NODE_ENV", {
-        useLocal: localValue ? true : false
-    });
+function getNodeEnv() {
+    const env = String(process.env.NODE_ENV || "").toLowerCase();
+    switch (env) {
+        case "prod":
+        case "production":
+            return NodeEnv.PRODUCTION;
+        case "dev":
+        case "development":
+            return NodeEnv.DEVELOPMENT;
+        case "test":
+            return NodeEnv.TEST;
+        default:
+            return NodeEnv.DEVELOPMENT;
+    }
 }
-exports.isDev = isDev;
-function isProd(localValue) {
-    return modeTest("prod", localValue || "NODE_ENV", {
-        useLocal: localValue ? true : false
-    });
-}
-exports.isProd = isProd;
+exports.getNodeEnv = getNodeEnv;

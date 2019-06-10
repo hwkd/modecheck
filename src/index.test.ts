@@ -1,42 +1,51 @@
 import { expect } from "chai";
-import { modeTest, isProduction, isDevelopment, isTest } from "./index";
+import { NodeEnv, modeTest, isProduction, isDevelopment, isTest, getNodeEnv } from "./index";
 
 describe("Test specs", function() {
   it("should return true if process.env.NODE_ENV is set to `test`", function() {
     process.env.NODE_ENV = "test";
-    expect(modeTest("test", "NODE_ENV")).to.equal(true);
+    expect(modeTest("test", { env: "NODE_ENV" })).to.equal(true);
   });
 
   it("isProduction() should return true if process.env.NODE_ENV is set to `production`", function() {
     process.env.NODE_ENV = "production";
     expect(isProduction()).to.equal(true);
+
+    process.env.NODE_ENV = "development";
+    expect(isProduction()).to.equal(false);
   });
 
   it("isDevelopment() should return true if process.env.NODE_ENV is set to `development`", function() {
     process.env.NODE_ENV = "development";
     expect(isDevelopment()).to.equal(true);
+
+    process.env.NODE_ENV = "test";
+    expect(isDevelopment()).to.equal(false);
   });
 
   it("isTest() should return true if process.env.NODE_ENV is set to `test`", function() {
     process.env.NODE_ENV = "test";
     expect(isTest()).to.equal(true);
+
+    process.env.NODE_ENV = "production";
+    expect(isTest()).to.equal(false);
   });
 
   it("should be case insensitive", function() {
     process.env.NODE_ENV = "Test";
-    expect(modeTest("test", "NODE_ENV")).to.equal(true);
+    expect(modeTest("test", { env: "NODE_ENV" })).to.equal(true);
     expect(isTest()).to.equal(true);
     expect(isProduction()).to.equal(false);
     expect(isDevelopment()).to.equal(false);
 
     process.env.NODE_ENV = "Development";
-    expect(modeTest("development", "NODE_ENV")).to.equal(true);
+    expect(modeTest("development", { env: "NODE_ENV" })).to.equal(true);
     expect(isDevelopment()).to.equal(true);
     expect(isProduction()).to.equal(false);
     expect(isTest()).to.equal(false);
 
     process.env.NODE_ENV = "Production";
-    expect(modeTest("production", "NODE_ENV")).to.equal(true);
+    expect(modeTest("production", { env: "NODE_ENV" })).to.equal(true);
     expect(isProduction()).to.equal(true);
     expect(isDevelopment()).to.equal(false);
     expect(isTest()).to.equal(false);
@@ -51,5 +60,22 @@ describe("Test specs", function() {
 
     expect(isDevelopment("development")).to.equal(true);
     expect(isDevelopment("text")).to.equal(false);
+  });
+
+  it("should return NodeEnv enums", function() {
+    process.env.NODE_ENV = "Production";
+    expect(getNodeEnv() === NodeEnv.PRODUCTION).to.equal(true);
+    expect(getNodeEnv() === NodeEnv.DEVELOPMENT).to.equal(false);
+    expect(getNodeEnv() === NodeEnv.TEST).to.equal(false);
+
+    process.env.NODE_ENV = "Development";
+    expect(getNodeEnv() === NodeEnv.PRODUCTION).to.equal(false);
+    expect(getNodeEnv() === NodeEnv.DEVELOPMENT).to.equal(true);
+    expect(getNodeEnv() === NodeEnv.TEST).to.equal(false);
+
+    process.env.NODE_ENV = "Test";
+    expect(getNodeEnv() === NodeEnv.PRODUCTION).to.equal(false);
+    expect(getNodeEnv() === NodeEnv.DEVELOPMENT).to.equal(false);
+    expect(getNodeEnv() === NodeEnv.TEST).to.equal(true);
   });
 });
